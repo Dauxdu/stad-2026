@@ -19,44 +19,44 @@ plt.rcParams.update(
 )
 
 
-def _new_axes(title: str, xlabel: str = "index", ylabel: str = "пакетов/с"):
-    """Создаёт полотно с подписями."""
-    fig, ax = plt.subplots(figsize=(11, 4))
-    ax.set(title=title, xlabel=xlabel, ylabel=ylabel)
-    return ax
-
-
-def _save(ax, path: str, grid: str = "both") -> None:
-    """Оформляет и сохраняет график."""
-    ax.grid(axis=grid)
+def _save(fig, ax, path: str) -> None:
+    ax.grid()
     ax.legend()
-    fig = ax.figure
     fig.tight_layout()
-    os.makedirs(os.path.dirname(path) or ".", exist_ok=True)
+    os.makedirs(os.path.dirname(path), exist_ok=True)
     fig.savefig(path, dpi=300)
     plt.close(fig)
 
 
-def plot_series(t: np.ndarray, path: str) -> None:
-    ax = _new_axes("Исходный ряд")
-    ax.plot(t, lw=0.8, label="traffic")
-    ax.axhline(t.mean(), color="red", ls="--", label=f"среднее = {t.mean():.1f}")
-    _save(ax, path)
+def plot_series(f, path):
+    fig, ax = plt.subplots(figsize=(11, 4))
+    ax.plot(f, lw=0.8, label="Трафик")
+    ax.axhline(f.mean(), color="orange", ls="--", label=f"среднее = {f.mean():.1f}")
+    ax.set(title="Исходный ряд f(x)", xlabel="x (номер отсчёта)", ylabel="пакетов/с")
+    _save(fig, ax, path)
 
 
-def plot_spectrum(amp: np.ndarray, threshold: float, path: str) -> None:
-    k = np.arange(1, len(amp))
-    ax = _new_axes(f"Амплитудный спектр (k = 1..{k[-1]})", "k", "A_k")
-    ax.bar(k, amp[1:], width=0.8)
-    ax.axhline(threshold, color="red", ls="--", label=f"порог = {threshold:.2f}")
-    _save(ax, path, grid="y")
+def plot_spectrum(A, threshold, path):
+    n = np.arange(1, len(A))
+    fig, ax = plt.subplots(figsize=(11, 4))
+    ax.bar(n, A[1:], width=0.8)
+    ax.axhline(threshold, color="red", ls="--", label=f"mean + 3·std = {threshold:.2f}")
+    ax.set(
+        title=f"Амплитудный спектр (n = 1..{n[-1]})",
+        xlabel="n (номер гармоники)",
+        ylabel="$A_n$",
+    )
+    _save(fig, ax, path)
 
 
-def plot_approximations(
-    t: np.ndarray, approx: dict[int, np.ndarray], path: str
-) -> None:
-    ax = _new_axes("Тригонометрические многочлены")
-    ax.plot(t, lw=0.6, color="gray", alpha=0.7, label="исходный ряд")
-    for order, values in approx.items():
-        ax.plot(values, lw=1.5, label=f"K = {order}")
-    _save(ax, path)
+def plot_approximations(f, approx, path):
+    fig, ax = plt.subplots(figsize=(11, 4))
+    ax.plot(f, lw=0.6, color="gray", alpha=0.7, label="исходный ряд")
+    for K, s in approx.items():
+        ax.plot(s, lw=1.5, label=f"K = {K}")
+    ax.set(
+        title="Тригонометрические многочлены $S_K(x)$",
+        xlabel="x (номер отсчёта)",
+        ylabel="пакетов/с",
+    )
+    _save(fig, ax, path)
