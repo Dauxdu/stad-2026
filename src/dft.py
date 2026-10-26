@@ -2,7 +2,9 @@ import numpy as np
 
 
 def fourier_coefficients(T: np.ndarray, k_max: int) -> tuple[np.ndarray, np.ndarray]:
-    """a_k = 2/N * sum T(j) cos(2*pi*k*j/N),  b_k = 2/N * sum T(j) sin(2*pi*k*j/N).
+    """
+    a_k = 2/N * sum T(j) cos(2*pi*k*j/N).
+    b_k = 2/N * sum T(j) sin(2*pi*k*j/N).
 
     Считается по формулам ДПФ, k = 0..k_max.
     """
@@ -33,12 +35,15 @@ def trig_polynomial(a: np.ndarray, b: np.ndarray, K: int, N: int) -> np.ndarray:
 
 
 def three_sigma_peaks(A: np.ndarray) -> tuple[list[int], float]:
-    """Пик: A_k > mean(A) + 3 * std(A), k = 1..k_max (a_0 не гармоника)."""
+    """Пик: A_k > mean(A) + 3 * std(A), k = 1..k_max."""
     threshold = A[1:].mean() + 3 * A[1:].std()
     peaks = [k for k in range(1, len(A)) if A[k] > threshold]
     return peaks, threshold
 
 
 def rmse(T: np.ndarray, s: np.ndarray) -> float:
-    """Среднеквадратичная ошибка = sqrt(1/N * sum (T(j) - s(j))^2)."""
+    """
+    Среднеквадратичная ошибка
+    sqrt(1/N * sum (T(j) - s(j))^2).
+    """
     return np.sqrt(np.mean((T - s) ** 2))
